@@ -6,6 +6,7 @@ using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Caching;
 using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Caching;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
@@ -86,22 +87,18 @@ namespace Business.Concrete
         [CacheRemoveAspect("IProductService.Get")]
         public IResult Update(Product product)
         {
-            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName), CheckIfProductCountOfCategoryCorrect(product.CategoryId));
-
-            if (result != null)
+            var result = _productDal.GetAll(p => p.CategoryId == product.CategoryId).Count;
+            if (result >= 10)
             {
-                return result;
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
             }
-
-            _productDal.Update(product);
-
-            return new SuccessResult(Messages.ProductUpdated);
+            throw new NotImplementedException();
         }
 
         private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
         {
             var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
-            if (result >= 10)
+            if (result >= 15)
             {
                 return new ErrorResult(Messages.ProductCountOfCategoryError);
             }

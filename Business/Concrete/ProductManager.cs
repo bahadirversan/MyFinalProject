@@ -52,12 +52,7 @@ namespace Business.Concrete
 
         [CacheAspect]
         public IDataResult<List<Product>> GetAll()
-        {
-            if (DateTime.Now.Hour == 1)
-            {
-                return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
-            }
-              
+        {            
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(), Messages.ProductsListed);
         }
 
